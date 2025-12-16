@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Ink · Account Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            smartink: {
+              navy: "#0A192F",
+              gold: "#C9A227",
+              soft: "#1B2940",
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+  <!-- Page wrapper -->
+  <div class="min-h-screen flex flex-col">
+
+    <!-- Top bar -->
+    <header class="border-b border-slate-800 bg-slate-950/90 backdrop-blur">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-smartink.gold/90 to-amber-400 shadow-lg flex items-center justify-center">
+            <span class="font-black text-slate-900 text-lg">SI</span>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm font-semibold tracking-wide uppercase text-slate-200">
+                Smart Ink
+              </h1>
+              <span class="text-[10px] px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                Panel de cuenta
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">
+              Configuración de cuenta · HCM · SRM · Suscripción
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+<!-- Estado de suscripción -->
+<div class="hidden sm:flex flex-col items-end">
+  <span class="text-xs text-slate-400">Plan actual</span>
+  <div class="flex items-center gap-2">
+    <span
+      id="top-plan-name"
+      class="text-xs font-medium text-smartink.gold"
+    >
+      Demo
+    </span>
+    <span
+      id="top-plan-renewal"
+      class="text-[10px] px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"
+    >
+      Renovación: 25/12/2025
+    </span>
+  </div>
+</div>
+
+<!-- User dropdown -->
+<div class="relative">
+  <!-- Trigger button -->
+  <button
+    id="account-user-menu-btn"
+    type="button"
+    class="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-1.5 hover:border-smartink.gold/60 hover:bg-slate-900 transition-colors"
+  >
+    <div
+      id="top-user-avatar"
+      class="h-8 w-8 rounded-full bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-slate-900 text-sm font-bold bg-cover bg-center"
+    >
+      JV
+    </div>
+    <div class="hidden sm:block text-left">
+      <p id="top-user-name" class="text-xs font-medium text-slate-100">
+        Cargando usuario...
+      </p>
+      <p id="top-user-email" class="text-[11px] text-slate-400">
+        —
+      </p>
+    </div>
+    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 9l6 6 6-6" />
+    </svg>
+  </button>
+
+  <!-- Dropdown panel -->
+  <div
+    id="account-user-menu-panel"
+    class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-slate-900/95 border border-slate-700/70 shadow-xl py-1 text-sm z-50"
+  >
+    <div class="px-3 py-2 text-[11px] text-slate-400 border-b border-slate-700/70">
+      <div class="font-semibold text-slate-100" id="account-menu-name">
+        <!-- se rellena vía JS, pero dejamos algo por defecto -->
+        Usuario Smart Ink
+      </div>
+      <div class="truncate" id="account-menu-email">
+        correo@empresa.com
+      </div>
+    </div>
+
+    <button
+      type="button"
+      id="account-menu-dashboard"
+      class="w-full text-left px-3 py-2 hover:bg-slate-800/90 text-[13px]"
+    >
+      Ir a mi panel
+    </button>
+
+    <button
+      type="button"
+      id="account-menu-home"
+      class="w-full text-left px-3 py-2 hover:bg-slate-800/90 text-[13px]"
+    >
+      Ir al inicio
+    </button>
+
+    <div class="border-t border-slate-700/60 my-1"></div>
+
+    <button
+      type="button"
+      id="account-menu-logout"
+      class="w-full text-left px-3 py-2 hover:bg-red-600/20 text-red-400 text-[13px]"
+    >
+      Cerrar sesión
+    </button>
+  </div>
+</div>
+
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="flex-1">
+      <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 flex flex-col md:flex-row gap-5">
+
+        <!-- Sidebar / Tabs -->
+        <aside class="w-full md:w-64 shrink-0">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-3">
+            <p class="text-xs uppercase tracking-[0.2em] text-slate-500 mb-3 px-2">
+              Configuración
+            </p>
+
+            <nav class="space-y-1.5 text-sm" id="settings-nav">
+              <!-- Cada botón activa una sección -->
+              <button data-target="perfil"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl bg-smartink.soft text-slate-50 border border-smartink.gold/40 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    👤
+                  </span>
+                  Perfil
+                </span>
+                <span class="text-[10px] text-smartink.gold">Básico</span>
+              </button>
+
+              <button data-target="empresa"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🏢
+                  </span>
+                  Empresa
+                </span>
+                <span class="text-[10px] text-slate-500">Datos fiscales</span>
+              </button>
+
+              <button data-target="suscripcion"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    💳
+                  </span>
+                  Suscripción & Plan
+                </span>
+                <span class="text-[10px] text-emerald-400">Activa</span>
+              </button>
+
+              <button data-target="facturacion"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🧾
+                  </span>
+                  Facturación
+                </span>
+              </button>
+
+              <button data-target="seguridad"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🔐
+                  </span>
+                  Seguridad & Acceso
+                </span>
+              </button>
+
+              <button data-target="equipo"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    👥
+                  </span>
+                  Equipo & Roles
+                </span>
+              </button>
+
+              <button data-target="preferencias"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🎛️
+                  </span>
+                  Preferencias
+                </span>
+              </button>
+
+              <button data-target="notificaciones"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🔔
+                  </span>
+                  Notificaciones
+                </span>
+              </button>
+
+              <button data-target="integraciones"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    🧩
+                  </span>
+                  Integraciones
+                </span>
+              </button>
+
+              <button data-target="datos"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    📦
+                  </span>
+                  Datos & Privacidad
+                </span>
+              </button>
+
+              <button data-target="soporte"
+                class="settings-tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-900/70 text-slate-300 text-xs md:text-sm">
+                <span class="flex items-center gap-2">
+                  <span class="h-6 w-6 rounded-lg bg-slate-900/80 flex items-center justify-center text-[11px]">
+                    💬
+                  </span>
+                  Soporte
+                </span>
+              </button>
+            </nav>
+
+            <div class="mt-4 border-t border-slate-800 pt-3 px-2">
+              <p class="text-[10px] text-slate-500">
+                Cambios se guardan en tu próxima sincronización con n8n / Airtable.
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Main content / Panels -->
+        <section class="flex-1 space-y-4" id="settings-content">
+
+          <!-- PERFIL -->
+          <div id="panel-perfil" class="settings-panel rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+  <div>
+    <h2 class="text-base md:text-lg font-semibold text-slate-50">
+      Perfil del usuario
+    </h2>
+    <p class="text-xs md:text-sm text-slate-400">
+      Controla tu identidad dentro de Smart Ink y tus preferencias básicas.
+    </p>
+  </div>
+  <div class="flex flex-col items-end gap-1">
+    <button
+    id="perfil-save-btn"
+    class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium
+           bg-amber-300 text-slate-900
+           border border-amber-400/70
+           shadow-lg shadow-amber-500/30
+           hover:bg-amber-200 hover:border-amber-300
+           transition-colors">
+    Guardar cambios
+  </button>
+  <p id="perfil-status" class="text-[11px] text-slate-500"></p>
+  
+  </div>
+</div>
+
+
+            <div class="grid md:grid-cols-[auto,1fr] gap-6 mt-2">
+              <!-- Avatar -->
+              <div class="flex flex-col items-center gap-3">
+                <!-- Avatar dinámico -->
+                <div
+                  id="perfil-avatar"
+                  class="h-20 w-20 rounded-2xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-2xl font-bold text-slate-900 bg-cover bg-center">
+                  SI
+                </div>
+              
+                <!-- Botón que abre el selector de archivo -->
+                <button
+                  id="perfil-avatar-change-btn"
+                  class="text-[11px] px-3 py-1.5 rounded-full border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold transition-colors">
+                  Cambiar foto
+                </button>
+              
+                <!-- Input file oculto -->
+                <input
+                  id="perfil-avatar-file"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                />
+              
+                <p class="text-[10px] text-slate-500 text-center max-w-[12rem]">
+                  Tamaño recomendado: 400x400 px, fondo transparente.
+                </p>
+              
+                <!-- Mensajes de estado del perfil/imagen -->
+                <p id="perfil-status" class="text-[11px] text-slate-400 text-center"></p>
+              </div>
+              
+              <!-- Form -->
+<div class="grid sm:grid-cols-2 gap-4">
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">Nombre</label>
+    <input
+      id="perfil-full-name"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70"
+      placeholder="Nombre completo"
+      value=""
+    />
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">Correo principal</label>
+    <input
+      id="perfil-email"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70"
+      placeholder="correo@empresa.com"
+      value=""
+    />
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">Teléfono</label>
+    <input
+      id="perfil-phone"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70"
+      placeholder="+52 614 000 0000"
+      value=""
+    />
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">Zona horaria</label>
+    <select
+      id="perfil-timezone"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70">
+      <option value="America/Chihuahua">America/Chihuahua · Chihuahua</option>
+      <option value="America/Mexico_City">America/Mexico_City · Ciudad de México</option>
+      <option value="America/Monterrey">America/Monterrey · Monterrey</option>
+      <option value="UTC">UTC · Tiempo universal coordinado</option>
+    </select>
+     </div>
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">
+      Idioma <span class="text-[10px] text-slate-500">(próximamente)</span>
+    </label>
+    <select
+      id="perfil-language"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70">
+      <option value="es-MX">Español (MX)</option>
+      <option value="en-US">Inglés (US)</option>
+    </select>
+    <p class="mt-1 text-[10px] text-slate-500">
+      De momento este ajuste no cambia el idioma de la app, solo guarda tu preferencia.
+    </p>
+  </div>
+  <div>
+    <label class="block text-xs font-medium text-slate-300 mb-1">Formato de fecha</label>
+    <select
+      id="perfil-date-format"
+      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100 focus:outline-none focus:ring-1 focus:ring-smartink.gold/70 focus:border-smartink.gold/70">
+      <option value="DD/MM/YYYY">DD/MM/AAAA</option>
+      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+    </select>
+  </div>
+</div>
+            </div>
+          </div>
+
+          <!-- EMPRESA -->
+          <div id="panel-empresa" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Perfil de la empresa
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Información comercial y fiscal utilizada en facturas, contratos y reportes.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300 transition-colors">
+                Guardar cambios
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Nombre comercial</label>
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+                  placeholder="Nombre comercial" value="Smart Ink Demo S.A. de C.V." />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Razón social</label>
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+                  placeholder="Razón social" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">RFC</label>
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+                  placeholder="XAXX010101000" />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Régimen fiscal</label>
+                <select
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100">
+                  <option>601 - General de Ley Personas Morales</option>
+                  <option>603 - Personas Morales con Fines no Lucrativos</option>
+                  <option>612 - Personas Físicas con Actividades Empresariales</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Uso CFDI por defecto</label>
+                <select
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100">
+                  <option>G03 - Gastos en general</option>
+                  <option>P01 - Por definir</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Sector / giro</label>
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+                  placeholder="Manufactura, servicios, agro, etc." />
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-xs font-medium text-slate-300 mb-1">Dirección fiscal</label>
+                <textarea
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-sm text-slate-100"
+                  rows="2" placeholder="Calle, número, colonia, ciudad, estado, CP"></textarea>
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <h3 class="text-xs font-semibold text-slate-300 mb-2">Sucursales</h3>
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-xs text-slate-400">
+                    Define sucursales para usarlas en nómina, asistencia, SRM y reportes.
+                  </p>
+                  <button
+                    class="text-[11px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    + Agregar sucursal
+                  </button>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="min-w-full text-xs">
+                    <thead>
+                      <tr class="text-slate-400 border-b border-slate-800">
+                        <th class="text-left py-1.5 pr-4">Nombre</th>
+                        <th class="text-left py-1.5 pr-4">Ciudad</th>
+                        <th class="text-left py-1.5 pr-4">Tipo</th>
+                        <th class="text-left py-1.5">Activa</th>
+                      </tr>
+                    </thead>
+                    <tbody class="text-slate-200">
+                      <tr class="border-b border-slate-900/60">
+                        <td class="py-1.5 pr-4">Matriz</td>
+                        <td class="py-1.5 pr-4">Chihuahua, Chih.</td>
+                        <td class="py-1.5 pr-4">Administrativa</td>
+                        <td class="py-1.5">
+                          <span
+                            class="inline-flex items-center px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px]">Activa</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="py-1.5 pr-4">Planta Norte</td>
+                        <td class="py-1.5 pr-4">Cd. Juárez, Chih.</td>
+                        <td class="py-1.5 pr-4">Operativa</td>
+                        <td class="py-1.5">
+                          <span
+                            class="inline-flex items-center px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px]">Activa</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUSCRIPCION -->
+          <div id="panel-suscripcion" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Plan y suscripción
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Administra tu plan, límites y renovación de Smart Ink.
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <button
+                  class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium border border-slate-700 text-slate-200 hover:border-slate-400">
+                  Ver historial de pagos
+                </button>
+                <button
+                  class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                  Cambiar de plan
+                </button>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2">
+              <div class="rounded-xl border border-smartink.gold/40 bg-slate-900/60 p-4">
+                <p class="text-xs uppercase tracking-[0.2em] text-smartink.gold mb-1">
+                  Plan actual
+                </p>
+                <h3 class="text-lg font-semibold text-slate-50 mb-1">
+                  HCM + SRM · PRO
+                </h3>
+                <p class="text-xs text-slate-400 mb-3">
+                  Ideal para empresas que quieren automatizar nómina, SRM y tableros ejecutivos.
+                </p>
+                <div class="flex items-baseline gap-1 mb-2">
+                  <span class="text-2xl font-bold text-slate-50">$4,990</span>
+                  <span class="text-xs text-slate-400">MXN / mes</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mb-3">
+                  Próxima renovación: <span class="text-slate-100 font-medium">25 de diciembre de 2025</span>
+                </p>
+                <ul class="text-[11px] text-slate-300 space-y-1">
+                  <li>• Hasta 150 empleados activos</li>
+                  <li>• Hasta 1,500 documentos procesados al mes</li>
+                  <li>• HCM ejecutivo + SRM proveedores + tableros financieros base</li>
+                  <li>• Soporte prioritario por correo</li>
+                </ul>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 bg-slate-900/40 p-4 space-y-3 text-xs md:text-sm text-slate-300">
+                <div class="flex justify-between items-center">
+                  <span>Estado de la suscripción</span>
+                  <span
+                    class="inline-flex items-center px-2.5 py-[3px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[11px]">
+                    Activa · Sin adeudos
+                  </span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Tipo de cobro</span>
+                  <span class="text-slate-200">Mensual (puedes cambiar a anual -10%)</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Usuarios incluidos</span>
+                  <span class="text-slate-200">Hasta 10 usuarios internos</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Documentos por mes</span>
+                  <span class="text-slate-200">1,500 / mes</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span>Sucursales</span>
+                  <span class="text-slate-200">Hasta 10 sucursales</span>
+                </div>
+                <div class="pt-3 border-t border-slate-800">
+                  <button
+                    class="text-[11px] underline underline-offset-2 text-slate-400 hover:text-red-400">
+                    Cancelar renovación automática
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FACTURACION -->
+          <div id="panel-facturacion" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Facturación y métodos de pago
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Administra tus datos de facturación, formas de pago y descarga CFDIs.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                Guardar configuración
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-[1.1fr,1.2fr] gap-4 mt-2">
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Método de pago</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-xs text-slate-300 space-y-2">
+                  <div class="flex justify-between items-center">
+                    <span>Tarjeta terminación 4242 · VISA</span>
+                    <span class="text-slate-400">Titular: J. Villarreal</span>
+                  </div>
+                  <div class="flex justify-between items-center text-[11px] text-slate-400">
+                    <span>Expira: 04/28</span>
+                    <span>Registrada el: 20/11/2025</span>
+                  </div>
+                  <div class="pt-2 flex gap-2">
+                    <button
+                      class="rounded-lg px-3 py-1.5 text-[11px] font-medium border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                      Actualizar tarjeta
+                    </button>
+                    <button
+                      class="rounded-lg px-3 py-1.5 text-[11px] font-medium border border-slate-700 text-slate-300 hover:border-red-500/70 hover:text-red-300">
+                      Eliminar método
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  class="text-[11px] px-3 py-1.5 rounded-full border border-dashed border-slate-700 text-slate-300 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                  + Agregar otro método (Mercado Pago, transferencia)
+                </button>
+
+                <div class="pt-3 border-t border-slate-800">
+                  <h3 class="text-xs font-semibold text-slate-300 mb-2">Datos de facturación</h3>
+                  <p class="text-[11px] text-slate-400 mb-2">
+                    Estos datos se usarán para las facturas de tu suscripción a Smart Ink.
+                  </p>
+                  <input
+                    class="mb-2 w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                    placeholder="RFC" />
+                  <input
+                    class="mb-2 w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                    placeholder="Razón social" />
+                  <textarea
+                    class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                    rows="2" placeholder="Dirección fiscal"></textarea>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="text-xs font-semibold text-slate-300 mb-2">Facturas emitidas</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                  <div class="flex justify-between items-center mb-2">
+                    <p class="text-[11px] text-slate-400">
+                      Descarga tus CFDI (PDF y XML) de la suscripción.
+                    </p>
+                    <button
+                      class="text-[11px] px-2.5 py-1 rounded-full border border-slate-700 text-slate-300 hover:border-slate-500">
+                      Ver todo
+                    </button>
+                  </div>
+                  <div class="overflow-x-auto text-xs">
+                    <table class="min-w-full">
+                      <thead>
+                        <tr class="text-slate-400 border-b border-slate-800">
+                          <th class="text-left py-1.5 pr-3">Fecha</th>
+                          <th class="text-left py-1.5 pr-3">Folio</th>
+                          <th class="text-left py-1.5 pr-3">Monto</th>
+                          <th class="text-left py-1.5">Descargar</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-slate-200">
+                        <tr class="border-b border-slate-900/60">
+                          <td class="py-1.5 pr-3">25/10/2025</td>
+                          <td class="py-1.5 pr-3">SI-1025-0001</td>
+                          <td class="py-1.5 pr-3">$4,990.00 MXN</td>
+                          <td class="py-1.5 flex gap-2">
+                            <button class="underline text-[11px] text-slate-300">PDF</button>
+                            <button class="underline text-[11px] text-slate-300">XML</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td class="py-1.5 pr-3">25/09/2025</td>
+                          <td class="py-1.5 pr-3">SI-0925-0007</td>
+                          <td class="py-1.5 pr-3">$4,990.00 MXN</td>
+                          <td class="py-1.5 flex gap-2">
+                            <button class="underline text-[11px] text-slate-300">PDF</button>
+                            <button class="underline text-[11px] text-slate-300">XML</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="mt-2 text-[10px] text-slate-500">
+                    Si necesitas corrección de datos fiscales, abre un ticket en Soporte.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEGURIDAD -->
+          <div id="panel-seguridad" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Seguridad y acceso
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Protege tu cuenta, revisa dispositivos activos y activa 2FA.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                Guardar cambios
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2 text-xs md:text-sm">
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Cambiar contraseña</h3>
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                  type="password" placeholder="Contraseña actual" />
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                  type="password" placeholder="Nueva contraseña" />
+                <input
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                  type="password" placeholder="Confirmar nueva contraseña" />
+                <p class="text-[11px] text-slate-500">
+                  Usa al menos 12 caracteres, combinación de letras, números y símbolos.
+                </p>
+              </div>
+
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Autenticación de dos pasos (2FA)</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-xs text-slate-100">App de autenticación</p>
+                      <p class="text-[11px] text-slate-400">
+                        Usa Google Authenticator, Authy u otra app compatible.
+                      </p>
+                    </div>
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="checkbox" class="peer sr-only" />
+                      <span
+                        class="w-9 h-5 bg-slate-700 rounded-full peer peer-checked:bg-emerald-500 flex items-center px-0.5 transition-colors">
+                        <span
+                          class="w-4 h-4 bg-slate-300 rounded-full shadow transform peer-checked:translate-x-4 transition-transform"></span>
+                      </span>
+                    </label>
+                  </div>
+                  <p class="text-[11px] text-slate-500">
+                    Al activar, te mostraremos un código QR para configurar tu app.
+                  </p>
+                </div>
+
+                <h3 class="pt-1 text-xs font-semibold text-slate-300">Sesiones activas</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] text-slate-300">
+                      <p>Chrome · macOS · Chihuahua</p>
+                      <p class="text-slate-500">Último acceso: hace 5 minutos</p>
+                    </div>
+                    <span
+                      class="text-[10px] px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                      Actual
+                    </span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] text-slate-300">
+                      <p>Edge · Windows · Oficina</p>
+                      <p class="text-slate-500">Último acceso: hace 2 días</p>
+                    </div>
+                    <button class="text-[11px] text-slate-400 hover:text-red-400">
+                      Cerrar sesión
+                    </button>
+                  </div>
+                  <div class="pt-2 border-t border-slate-800">
+                    <button class="text-[11px] text-slate-400 hover:text-red-400">
+                      Cerrar sesión en todos los dispositivos
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EQUIPO -->
+          <div id="panel-equipo" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Equipo y roles
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Administra a las personas que tienen acceso a Smart Ink en tu empresa.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                + Invitar usuario
+              </button>
+            </div>
+
+            <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 text-xs md:text-sm">
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-800 text-slate-400">
+                      <th class="text-left py-1.5 pr-3">Nombre</th>
+                      <th class="text-left py-1.5 pr-3">Correo</th>
+                      <th class="text-left py-1.5 pr-3">Rol</th>
+                      <th class="text-left py-1.5 pr-3">Áreas</th>
+                      <th class="text-left py-1.5">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-slate-200">
+                    <tr class="border-b border-slate-900/60">
+                      <td class="py-1.5 pr-3">Javier Villarreal</td>
+                      <td class="py-1.5 pr-3">admin@smartink.mx</td>
+                      <td class="py-1.5 pr-3">Owner</td>
+                      <td class="py-1.5 pr-3">HCM, SRM, Finanzas</td>
+                      <td class="py-1.5">
+                        <span
+                          class="inline-flex items-center px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px]">Activo</span>
+                      </td>
+                    </tr>
+                    <tr class="border-b border-slate-900/60">
+                      <td class="py-1.5 pr-3">Daniel · IT</td>
+                      <td class="py-1.5 pr-3">daniel@empresa.com</td>
+                      <td class="py-1.5 pr-3">Admin técnico</td>
+                      <td class="py-1.5 pr-3">Integraciones, n8n</td>
+                      <td class="py-1.5">
+                        <span
+                          class="inline-flex items-center px-2 py-[2px] rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px]">Activo</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="py-1.5 pr-3">Recursos Humanos</td>
+                      <td class="py-1.5 pr-3">rh@empresa.com</td>
+                      <td class="py-1.5 pr-3">HCM Manager</td>
+                      <td class="py-1.5 pr-3">HCM, Asistencia</td>
+                      <td class="py-1.5">
+                        <span
+                          class="inline-flex items-center px-2 py-[2px] rounded-full bg-yellow-500/10 text-yellow-300 border border-yellow-500/30 text-[10px]">Invitación
+                          enviada</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p class="mt-3 text-[11px] text-slate-500">
+                Los cambios de roles afectan permisos en HCM, SRM y dashboards ejecutivos. La lógica de permisos
+                puedes manejarla en Airtable / Supabase y consumirla desde aquí.
+              </p>
+            </div>
+          </div>
+
+          <!-- PREFERENCIAS -->
+          <div id="panel-preferencias" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Preferencias de uso
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Ajusta la apariencia y el comportamiento por defecto de Smart Ink.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                Guardar preferencias
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2 text-xs md:text-sm">
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Tema y branding</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Tema de color</label>
+                    <select
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100">
+                      <option>Smart Ink (azul marino + dorado)</option>
+                      <option>Claro corporativo</option>
+                      <option>Oscuro minimalista</option>
+                      <option>Custom (desde app settings avanzado)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Logo de la empresa</label>
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="h-10 w-10 rounded-xl bg-slate-800 flex items-center justify-center text-[11px] text-slate-400">
+                        LOGO
+                      </div>
+                      <button
+                        class="text-[11px] px-3 py-1.5 rounded-full border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                        Subir logo
+                      </button>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">PNG / SVG fondo transparente, mínimo 256px.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Vistas por defecto</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Página inicial al entrar</label>
+                    <select
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100">
+                      <option>Dashboard ejecutivo general</option>
+                      <option>HCM · Tablero de talento</option>
+                      <option>SRM · Proveedores y pagos</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Vista de dashboards</label>
+                    <select
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100">
+                      <option>Tarjetas + gráficos</option>
+                      <option>Tablas avanzadas</option>
+                      <option>Modo compacto (directivo)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Frecuencia de pago por defecto</label>
+                    <select
+                      class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100">
+                      <option>Quincenal</option>
+                      <option>Semanal</option>
+                      <option>Mensual</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- NOTIFICACIONES -->
+          <div id="panel-notificaciones" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Notificaciones
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Decide qué tipo de alertas quieres recibir y por qué canal.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                Guardar notificaciones
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2 text-xs md:text-sm">
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Canales</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Email</span>
+                    <input type="checkbox" checked
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                  <label class="flex items-center justify-between gap-2">
+                    <span>WhatsApp / SMS</span>
+                    <input type="checkbox"
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Dentro de la app</span>
+                    <input type="checkbox" checked
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Tipo de alertas</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Renovación próxima de plan</span>
+                    <input type="checkbox" checked
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Error en cobro / método de pago</span>
+                    <input type="checkbox" checked
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Nómina con errores / campos faltantes</span>
+                    <input type="checkbox" checked
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                  <label class="flex items-center justify-between gap-2">
+                    <span>Nuevos reportes generados (HCM / SRM)</span>
+                    <input type="checkbox"
+                      class="h-4 w-4 rounded border-slate-600 bg-slate-900 text-smartink.gold" />
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INTEGRACIONES -->
+          <div id="panel-integraciones" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Integraciones
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Conecta Smart Ink con Google Drive, Sheets, WhatsApp, n8n y más.
+                </p>
+              </div>
+              <button
+                class="rounded-xl px-4 py-2 text-xs md:text-sm font-medium bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                Agregar integración
+              </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 mt-2 text-xs md:text-sm">
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-slate-100">Google Drive</p>
+                    <p class="text-[11px] text-slate-400">
+                      Ingesta de documentos HCM / SRM desde carpetas específicas.
+                    </p>
+                  </div>
+                  <button
+                    class="text-[11px] px-3 py-1.5 rounded-full border border-emerald-500/60 text-emerald-300">
+                    Conectado
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-slate-100">Google Sheets</p>
+                    <p class="text-[11px] text-slate-400">
+                      Tablas de apoyo para catálogos, nómina, proveedores y KPIs.
+                    </p>
+                  </div>
+                  <button
+                    class="text-[11px] px-3 py-1.5 rounded-full border border-emerald-500/60 text-emerald-300">
+                    Conectado
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-slate-100">WhatsApp Business</p>
+                    <p class="text-[11px] text-slate-400">
+                      Bots de citas, confirmaciones de nómina, recordatorios y más.
+                    </p>
+                  </div>
+                  <button
+                    class="text-[11px] px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    Conectar
+                  </button>
+                </div>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-slate-100">n8n / Webhooks</p>
+                    <p class="text-[11px] text-slate-400">
+                      Dispara flujos de automatización cuando cambien tus datos en Smart Ink.
+                    </p>
+                  </div>
+                  <button
+                    class="text-[11px] px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    Configurar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DATOS -->
+          <div id="panel-datos" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Datos y privacidad
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Exporta tu información o solicita baja de datos conforme a la normatividad.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-xs md:text-sm mt-2">
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Exportar datos</h3>
+                <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-3 space-y-2">
+                  <button
+                    class="w-full text-left px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    Exportar empleados (HCM)
+                  </button>
+                  <button
+                    class="w-full text-left px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    Exportar nómina histórica
+                  </button>
+                  <button
+                    class="w-full text-left px-3 py-2 rounded-lg border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                    Exportar proveedores y SRM
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <h3 class="text-xs font-semibold text-slate-300">Zona de peligro</h3>
+                <div class="rounded-xl border border-red-900 bg-red-950/40 p-3 space-y-2">
+                  <p class="text-xs text-red-200 font-medium">
+                    Desactivar o eliminar cuenta
+                  </p>
+                  <p class="text-[11px] text-red-200/80">
+                    Algunas operaciones no se pueden deshacer. Conservaremos lo requerido por normativas fiscales.
+                  </p>
+                  <button
+                    class="w-full mt-2 text-left px-3 py-2 rounded-lg border border-red-500/70 text-red-200 hover:bg-red-500/10">
+                    Desactivar cuenta (reversible)
+                  </button>
+                  <button
+                    class="w-full text-left px-3 py-2 rounded-lg border border-red-500/70 text-red-200 hover:bg-red-500/10">
+                    Solicitar eliminación definitiva de datos
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SOPORTE -->
+          <div id="panel-soporte" class="settings-panel hidden rounded-2xl border border-slate-800 bg-slate-950/60 shadow-lg shadow-black/40 p-5">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 class="text-base md:text-lg font-semibold text-slate-50">
+                  Soporte y ayuda
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400">
+                  Encuentra documentación, abre un ticket o agenda una sesión con Smart Ink.
+                </p>
+              </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-4 text-xs md:text-sm mt-2">
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+                <p class="text-xs font-semibold text-slate-300">Centro de ayuda</p>
+                <p class="text-[11px] text-slate-400">
+                  Guías paso a paso para HCM, SRM, integraciones y dashboards.
+                </p>
+                <button
+                  class="mt-2 inline-flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full border border-slate-700 text-slate-200 hover:border-smartink.gold/80 hover:text-smartink.gold">
+                  Abrir documentación
+                </button>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 bg-slate-900/60 p-4 space-y-2">
+                <p class="text-xs font-semibold text-slate-300">Ticket de soporte</p>
+                <p class="text-[11px] text-slate-400">
+                  Cuéntanos qué necesitas y conectamos tus dudas con los flujos de automatización.
+                </p>
+                <textarea
+                  class="w-full rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-100"
+                  rows="3" placeholder="Describe el problema o la mejora que necesitas..."></textarea>
+                <button
+                  class="mt-2 inline-flex items-center gap-1 text-[11px] px-3 py-1.5 rounded-full bg-smartink.gold text-slate-900 hover:bg-amber-300">
+                  Enviar ticket
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer mini -->
+    <footer class="border-t border-slate-900 bg-slate-950/90">
+      <div class="max-w-6xl mx-auto px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p class="text-[11px] text-slate-500">
+          Smart Ink · Inteligencia empresarial para tu operación · v0.1 Account Settings Layout
+        </p>
+        <div class="flex gap-4 text-[11px] text-slate-500">
+          <a href="#" class="hover:text-slate-300">Aviso de privacidad</a>
+          <a href="#" class="hover:text-slate-300">Términos</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Tabs logic -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 🔐 Same project as landing/dashboard
+      const SUPABASE_URL = "https://xjkpyjdvxduzbkriindm.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqa3B5amR2eGR1emJrcmlpbmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDU3NDEsImV4cCI6MjA3OTU4MTc0MX0.NQGI245biPWESIrxqLH3_gTmzhF78DcBjIF4ENd4Zbc";
+  
+      const LANDING_URL   = "/Website/";
+      const DASHBOARD_URL = "/Website/dashboard.html";
+  
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+      // Refs PERFIL
+      const perfilAvatarEl      = document.getElementById("perfil-avatar");
+      const perfilFullNameInput = document.getElementById("perfil-full-name");
+      const perfilEmailInput    = document.getElementById("perfil-email");
+      const perfilPhoneInput    = document.getElementById("perfil-phone");
+      const perfilTzSelect      = document.getElementById("perfil-timezone");
+      const perfilLangSelect    = document.getElementById("perfil-language");
+      const perfilDateSelect    = document.getElementById("perfil-date-format");
+      const perfilSaveBtn       = document.getElementById("perfil-save-btn");
+      const perfilStatusEl      = document.getElementById("perfil-status");
+  
+      // 🔥 NUEVO: refs para upload de avatar
+      const perfilAvatarFileInput = document.getElementById("perfil-avatar-file");
+      const perfilAvatarChangeBtn = document.getElementById("perfil-avatar-change-btn");
+  
+      // ---------------------------
+      // 1) Proteger la página
+      // ---------------------------
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session) {
+        // Sin sesión → regresar al sitio principal y pedir login
+        window.location.href = LANDING_URL + "?auth=required";
+        return;
+      }
+      const session = data.session;
+      const user = session.user;
+  
+      // ---------------------------
+      // 2) Cargar perfil / organización / plan
+      // ---------------------------
+      async function loadAccountData() {
+  let displayName = user.email;
+  let emailLabel  = user.email;
+  let initials    = (user.email || "?").charAt(0).toUpperCase();
+  let avatarUrl   = null;
+  let profile     = null;
+
+  try {
+    const { data: profileData, error: profileError } = await supabase
+      .from("profiles")
+      .select("full_name, company, phone, timezone, language, date_format, default_org_id, avatar_url")
+      .eq("id", user.id)
+      .single();
+
+    if (!profileError && profileData) {
+      profile = profileData;
+
+      displayName = profile.company || profile.full_name || user.email;
+      emailLabel  = user.email || emailLabel;
+      initials    = (profile.company || profile.full_name || emailLabel || "?")
+        .split(" ")
+        .filter(Boolean)
+        .map(p => p[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase();
+
+      avatarUrl = profile.avatar_url || null;
+
+      // ---- PERFIL form ----
+      if (perfilFullNameInput) perfilFullNameInput.value = profile.full_name || "";
+      if (perfilEmailInput)    perfilEmailInput.value    = emailLabel;
+      if (perfilPhoneInput)    perfilPhoneInput.value    = profile.phone || "";
+
+      if (perfilTzSelect) {
+        const tzValue = profile.timezone || "America/Chihuahua";
+        if ([...perfilTzSelect.options].some(o => o.value === tzValue)) {
+          perfilTzSelect.value = tzValue;
+        }
+      }
+
+      if (perfilLangSelect) {
+        const langValue = profile.language || "es-MX";
+        if ([...perfilLangSelect.options].some(o => o.value === langValue)) {
+          perfilLangSelect.value = langValue;
+        }
+      }
+
+      if (perfilDateSelect) {
+        const dfValue = profile.date_format || "DD/MM/YYYY";
+        if ([...perfilDateSelect.options].some(o => o.value === dfValue)) {
+          perfilDateSelect.value = dfValue;
+        }
+      }
+
+      // ---- Avatar grande (panel Perfil) ----
+      if (perfilAvatarEl) {
+        if (avatarUrl) {
+          perfilAvatarEl.style.backgroundImage = `url(${avatarUrl})`;
+          perfilAvatarEl.style.backgroundSize  = "cover";
+          perfilAvatarEl.style.backgroundPosition = "center";
+          perfilAvatarEl.textContent = "";
+        } else {
+          perfilAvatarEl.style.backgroundImage = "none";
+          perfilAvatarEl.textContent = initials;
+        }
+      }
+
+      // ---- Plan / suscripción top bar (ya lo tenías) ----
+      if (profile.default_org_id) {
+        const { data: org, error: orgError } = await supabase
+          .from("organizations")
+          .select("id, name")
+          .eq("id", profile.default_org_id)
+          .single();
+
+        if (!orgError && org) {
+          const { data: subs, error: subsError } = await supabase
+            .from("subscriptions")
+            .select(`
+              id,
+              status,
+              plan,
+              expires_at,
+              products ( code, name )
+            `)
+            .eq("org_id", org.id)
+            .order("created_at", { ascending: true });
+
+          if (!subsError && subs && subs.length > 0) {
+            const active = subs.find(s => s.status === "active" || s.status === "trial") || subs[0];
+
+            const planName =
+              (active.products && (active.products.name || active.products.code)) ||
+              active.plan ||
+              "Plan Smart Ink";
+
+            const planLabelEl = document.getElementById("top-plan-name");
+            const planRenewEl = document.getElementById("top-plan-renewal");
+
+            if (planLabelEl) {
+              planLabelEl.textContent = planName;
+            }
+            if (planRenewEl) {
+              const d = active.expires_at ? new Date(active.expires_at) : null;
+              planRenewEl.textContent = d
+                ? "Renovación: " + d.toLocaleDateString("es-MX")
+                : "Renovación automática activa";
+            }
+          }
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("Error cargando perfil/plan:", e);
+  }
+
+  // ---- Mini header (top user) ----
+  const nameEl   = document.getElementById("top-user-name");
+  const emailEl  = document.getElementById("top-user-email");
+  const avatarEl = document.getElementById("top-user-avatar");
+  const menuNameEl  = document.getElementById("account-menu-name");
+  const menuEmailEl = document.getElementById("account-menu-email");
+
+  if (nameEl)  nameEl.textContent  = displayName;
+  if (emailEl) emailEl.textContent = emailLabel;
+
+  if (avatarEl) {
+    if (avatarUrl) {
+      avatarEl.style.backgroundImage = `url(${avatarUrl})`;
+      avatarEl.style.backgroundSize  = "cover";
+      avatarEl.style.backgroundPosition = "center";
+      avatarEl.textContent = "";
+    } else {
+      avatarEl.style.backgroundImage = "none";
+      avatarEl.textContent = initials;
+    }
+  }
+  if (menuNameEl)  menuNameEl.textContent  = displayName;
+  if (menuEmailEl) menuEmailEl.textContent = emailLabel;
+}
+  
+      await loadAccountData();
+  
+      // ---------------------------
+      // 3) Guardar PERFIL
+      // ---------------------------
+      if (perfilSaveBtn) {
+        perfilSaveBtn.addEventListener("click", async () => {
+          if (perfilStatusEl) {
+            perfilStatusEl.textContent = "Guardando cambios...";
+            perfilStatusEl.className = "text-[11px] text-slate-400";
+          }
+  
+          const updates = {
+            full_name: (perfilFullNameInput?.value || "").trim() || null,
+            phone:     (perfilPhoneInput?.value || "").trim() || null,
+            timezone:  perfilTzSelect?.value || null,
+            language:  perfilLangSelect?.value || null,
+            date_format: perfilDateSelect?.value || null,
+            updated_at: new Date().toISOString()
+          };
+  
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update(updates)
+            .eq("id", user.id);
+  
+          if (updateError) {
+            console.error(updateError);
+            if (perfilStatusEl) {
+              perfilStatusEl.textContent = "Error al guardar cambios: " + updateError.message;
+              perfilStatusEl.className = "text-[11px] text-red-400";
+            }
+            return;
+          }
+  
+          if (perfilStatusEl) {
+            perfilStatusEl.textContent = "Cambios guardados correctamente.";
+            perfilStatusEl.className = "text-[11px] text-emerald-400";
+          }
+  
+          await loadAccountData();
+        });
+      }
+  
+      // ---------------------------
+      // 3.1 Avatar: abrir selector + subir + preview
+      // ---------------------------
+      if (perfilAvatarChangeBtn && perfilAvatarFileInput) {
+        // Abrir file picker al hacer click en "Cambiar foto"
+        perfilAvatarChangeBtn.addEventListener("click", () => {
+          perfilAvatarFileInput.click();
+        });
+  
+        // Upload + preview
+        perfilAvatarFileInput.addEventListener("change", async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+  
+          // Preview local inmediato
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            if (perfilAvatarEl) {
+              perfilAvatarEl.style.backgroundImage = `url(${ev.target.result})`;
+              perfilAvatarEl.style.backgroundSize  = "cover";
+              perfilAvatarEl.style.backgroundPosition = "center";
+              perfilAvatarEl.textContent = "";
+            }
+          };
+          reader.readAsDataURL(file);
+  
+          if (!user) {
+            if (perfilStatusEl) {
+              perfilStatusEl.textContent = "Inicia sesión de nuevo para guardar la foto en el servidor.";
+              perfilStatusEl.className = "text-[11px] text-slate-400";
+            }
+            return;
+          }
+  
+          if (perfilStatusEl) {
+            perfilStatusEl.textContent = "Subiendo foto de perfil...";
+            perfilStatusEl.className = "text-[11px] text-slate-400";
+          }
+  
+          try {
+            const ext = file.name.split(".").pop() || "png";
+            const filePath = `${user.id}.${ext}`;
+  
+            const { error: uploadError } = await supabase.storage
+              .from("avatars")
+              .upload(filePath, file, {
+                cacheControl: "3600",
+                upsert: true,
+              });
+  
+            if (uploadError) {
+              console.error("Error al subir avatar:", uploadError);
+              if (perfilStatusEl) {
+                perfilStatusEl.textContent = "Error al subir la foto de perfil.";
+                perfilStatusEl.className = "text-[11px] text-red-400";
+              }
+              return;
+            }
+  
+            const { data: publicData } = supabase
+              .storage
+              .from("avatars")
+              .getPublicUrl(filePath);
+  
+            const publicUrl = publicData?.publicUrl || null;
+  
+            if (publicUrl) {
+              const { error: profileError } = await supabase
+                .from("profiles")
+                .update({ avatar_url: publicUrl })
+                .eq("id", user.id);
+  
+              if (profileError) {
+                console.error("Error al actualizar profile.avatar_url:", profileError);
+                if (perfilStatusEl) {
+                  perfilStatusEl.textContent = "Foto subida, pero no se pudo guardar en el perfil.";
+                  perfilStatusEl.className = "text-[11px] text-red-400";
+                }
+                return;
+              }
+            }
+  
+            if (perfilStatusEl) {
+              perfilStatusEl.textContent = "Foto actualizada correctamente.";
+              perfilStatusEl.className = "text-[11px] text-emerald-400";
+            }
+          } catch (err) {
+            console.error("Error inesperado al manejar avatar:", err);
+            if (perfilStatusEl) {
+              perfilStatusEl.textContent = "Error inesperado al subir la foto.";
+              perfilStatusEl.className = "text-[11px] text-red-400";
+            }
+          }
+        });
+      }
+  
+// ---------------------------
+// 4) User dropdown + navegación + logout
+// ---------------------------
+const accountMenuBtn     = document.getElementById("account-user-menu-btn");
+const accountMenuPanel   = document.getElementById("account-user-menu-panel");
+const accountMenuDash    = document.getElementById("account-menu-dashboard");
+const accountMenuHome    = document.getElementById("account-menu-home");
+const accountMenuLogout  = document.getElementById("account-menu-logout");
+
+// Abre/cierra el dropdown
+if (accountMenuBtn && accountMenuPanel) {
+  accountMenuBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    accountMenuPanel.classList.toggle("hidden");
+  });
+
+  // Cerrar al hacer click fuera
+  document.addEventListener("click", (event) => {
+    if (
+      !accountMenuPanel.contains(event.target) &&
+      !accountMenuBtn.contains(event.target)
+    ) {
+      accountMenuPanel.classList.add("hidden");
+    }
+  });
+}
+
+// Navegar al dashboard
+if (accountMenuDash) {
+  accountMenuDash.addEventListener("click", () => {
+    window.location.href = DASHBOARD_URL;
+  });
+}
+
+// Navegar al landing sin cerrar sesión
+if (accountMenuHome) {
+  accountMenuHome.addEventListener("click", () => {
+    window.location.href = LANDING_URL;
+  });
+}
+
+// Cerrar sesión
+if (accountMenuLogout) {
+  accountMenuLogout.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = LANDING_URL;
+  });
+}
+
+
+  
+      // ---------------------------
+      // 5) Lógica de tabs
+      // ---------------------------
+      const buttons = document.querySelectorAll(".settings-tab-btn");
+      const panels  = document.querySelectorAll(".settings-panel");
+  
+      buttons.forEach(btn => {
+        btn.addEventListener("click", () => {
+          const target = btn.getAttribute("data-target");
+  
+          buttons.forEach(b => {
+            b.classList.remove("bg-smartink.soft", "border-smartink.gold/40", "text-slate-50");
+            b.classList.add("hover:bg-slate-900/70", "text-slate-300");
+          });
+          btn.classList.add("bg-smartink.soft", "border-smartink.gold/40", "text-slate-50");
+          btn.classList.remove("hover:bg-slate-900/70", "text-slate-300");
+  
+          panels.forEach(p => {
+            if (p.id === "panel-" + target) {
+              p.classList.remove("hidden");
+            } else {
+              p.classList.add("hidden");
+            }
+          });
+        });
+      });
+  
+      const firstBtn = document.querySelector('.settings-tab-btn[data-target="perfil"]');
+      if (firstBtn) firstBtn.click();
+    });
+  </script>
+  
+
+</body>
+</html>

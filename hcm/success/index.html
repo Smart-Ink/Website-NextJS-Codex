@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pago Exitoso | Smart Ink HCM</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0A192F] text-white min-h-screen flex items-center justify-center">
+  <div class="text-center max-w-lg bg-[#101C2B] rounded-3xl p-10 shadow-[0_0_40px_rgba(201,162,39,0.15)] border border-[#C9A227]/30 animate-fade-in">
+    <!-- Success Icon -->
+    <div class="flex justify-center mb-6">
+      <div class="relative w-20 h-20">
+        <div class="absolute inset-0 rounded-full border-4 border-[#C9A227] opacity-60 animate-ping"></div>
+        <div class="relative rounded-full bg-[#C9A227] flex items-center justify-center w-20 h-20 text-[#0A192F] text-4xl font-bold">✓</div>
+      </div>
+    </div>
+
+    <h1 class="text-3xl font-bold text-[#C9A227] mb-2">¡Pago Exitoso!</h1>
+    <p class="text-gray-300 mb-6">
+      Tu suscripción a <strong>Smart Ink HCM</strong> se ha completado correctamente.<br>
+      Ingresa tu correo para recibir tus accesos automáticamente.
+    </p>
+
+    <!-- Email form -->
+    <form id="accessForm" class="flex flex-col gap-4 mt-4">
+      <input
+        type="email"
+        id="email"
+        required
+        placeholder="tu@correo.com"
+        class="px-4 py-3 rounded-xl text-[#0A192F] font-medium focus:outline-none focus:ring-2 focus:ring-[#C9A227]"
+      />
+      <button
+        type="submit"
+        class="bg-[#C9A227] text-[#0A192F] font-semibold px-6 py-3 rounded-xl transition-all duration-300 hover:bg-[#d9b64f] hover:shadow-[0_0_20px_rgba(201,162,39,0.5)]"
+      >
+        Enviar acceso
+      </button>
+    </form>
+
+    <p id="responseMsg" class="text-gray-400 mt-4 text-sm hidden"></p>
+
+    <p class="text-sm text-gray-400 mt-6">
+      ¿Problemas? Contáctanos en
+      <a href="https://wa.me/526572392954" target="_blank" class="text-[#C9A227] hover:underline">WhatsApp</a>
+    </p>
+  </div>
+
+  <style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fade-in 0.8s ease-out; }
+  </style>
+
+  <script>
+    const form = document.getElementById('accessForm');
+    const responseMsg = document.getElementById('responseMsg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      responseMsg.classList.remove('hidden');
+      responseMsg.textContent = "Enviando tu acceso...";
+
+      try {
+        const res = await fetch("https://n8n.smartink.com.mx/webhook/hcm-access", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          responseMsg.textContent = "✅ Acceso enviado correctamente. Revisa tu correo.";
+          responseMsg.classList.add("text-[#C9A227]");
+        } else {
+          responseMsg.textContent = "❌ Ocurrió un error al enviar tu acceso.";
+          responseMsg.classList.add("text-red-400");
+        }
+      } catch (err) {
+        responseMsg.textContent = "⚠️ Error de conexión. Intenta de nuevo.";
+        responseMsg.classList.add("text-red-400");
+      }
+    });
+  </script>
+</body>
+</html>

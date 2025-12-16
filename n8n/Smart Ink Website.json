@@ -1,0 +1,148 @@
+{
+  "name": "Smart Ink Website",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "access-link",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "id": "5029a44d-712d-4281-bd68-c70c1eee2ba0",
+      "name": "Webhook",
+      "webhookId": "b88dc936-d975-4e64-86d5-0065fe8821bd"
+    },
+    {
+      "parameters": {
+        "operation": "list",
+        "baseId": "appXXXXXXXXXXXXXX",
+        "tableId": "tblXXXXXXXXXXXXXX",
+        "additionalOptions": {
+          "filterByFormula": "{Email} = '{{$json[\"email\"]}}'"
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 3,
+      "position": [240, 0],
+      "id": "airtable-lookup",
+      "name": "Buscar Cliente (Airtable)",
+      "credentials": {
+        "airtableApi": {
+          "id": "airtable-cred-id",
+          "name": "Airtable Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "expression": [
+            {
+              "value1": "={{ $json[\"records\"] && $json[\"records\"].length > 0 }}",
+              "operation": "equal",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "id": "if-found",
+      "name": "¿Cliente encontrado?"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "to": "={{ $json[\"records\"][0].fields.Email }}",
+        "subject": "Tu enlace de acceso a Smart Ink",
+        "text": "Hola {{ $json[\"records\"][0].fields.Nombre || 'cliente' }},\n\nHemos generado tu enlace de acceso:\nhttps://smartink.mx/acceso/{{ $json[\"records\"][0].fields.Codigo || 'codigo' }}\n\nGracias por usar Smart Ink.",
+        "options": {
+          "htmlBody": "<p>Hola {{ $json[\"records\"][0].fields.Nombre || 'cliente' }},</p><p>Hemos generado tu enlace de acceso:</p><p><a href='https://smartink.mx/acceso/{{ $json[\"records\"][0].fields.Codigo || 'codigo' }}' target='_blank'>Acceder ahora</a></p><p>Gracias por usar <strong>Smart Ink</strong>.</p>"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [720, -100],
+      "id": "send-email",
+      "name": "Enviar Correo de Acceso",
+      "credentials": {
+        "gmailOAuth2Api": {
+          "id": "gmail-cred-id",
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": true,\n  \"message\": \"¡Listo! Te enviamos tu enlace de acceso por correo. 📩\"\n}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [960, -100],
+      "id": "respond-success",
+      "name": "Responder Éxito"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"success\": false,\n  \"message\": \"No encontramos un registro con ese correo. Verifícalo e inténtalo de nuevo.\"\n}"
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [720, 160],
+      "id": "respond-error",
+      "name": "Responder Error"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          { "node": "Buscar Cliente (Airtable)", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Buscar Cliente (Airtable)": {
+      "main": [
+        [
+          { "node": "¿Cliente encontrado?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "¿Cliente encontrado?": {
+      "main": [
+        [
+          { "node": "Enviar Correo de Acceso", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Responder Error", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Enviar Correo de Acceso": {
+      "main": [
+        [
+          { "node": "Responder Éxito", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City"
+  },
+  "versionId": "smartink-access-v2",
+  "id": "jw2IXxg9J1ZWz0fs",
+  "tags": [
+    { "name": "Smart Ink" },
+    { "name": "Acceso" }
+  ]
+}

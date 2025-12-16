@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Smart Ink · Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-elevated: #030712;
+      --border-subtle: rgba(148, 163, 184, 0.28);
+      --border-strong: rgba(148, 163, 184, 0.55);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #c9a227;
+      --accent-soft: rgba(201, 162, 39, 0.18);
+      --accent-strong: #facc15;
+      --danger: #f97373;
+      --radius-lg: 18px;
+      --radius-xl: 22px;
+      --shadow-soft: 0 24px 70px rgba(0, 0, 0, 0.7);
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(201,162,39,0.12), transparent 55%),
+        radial-gradient(circle at bottom right, #020617, #000000 60%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-shell {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      backdrop-filter: blur(16px);
+      background: linear-gradient(to right, rgba(2,6,23,0.96), rgba(15,23,42,0.96));
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-logo {
+      height: 32px;
+      width: auto;
+      filter: drop-shadow(0 8px 25px rgba(0,0,0,0.7));
+    }
+
+    .topbar-title {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .badge-user {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15,23,42,0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 260px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.25);
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(15,23,42,0.8);
+    }
+
+    .main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.6fr);
+      gap: 18px;
+      padding: 18px 18px 22px;
+    }
+
+    @media (max-width: 900px) {
+      .main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: rgba(3,7,18,0.98);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-soft);
+      padding: 18px 18px 16px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: var(--muted);
+    }
+
+    .card-main-title {
+      font-size: 19px;
+      margin: 4px 0 6px;
+      font-weight: 520;
+    }
+
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .metric {
+      border-radius: 14px;
+      border: 1px solid rgba(31,41,55,0.9);
+      background: radial-gradient(circle at top left, rgba(201,162,39,0.08), rgba(15,23,42,0.9));
+      padding: 10px 11px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .metric-value {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .metric-pill {
+      font-size: 11px;
+      color: var(--accent-strong);
+      margin-top: 4px;
+    }
+
+    .divider {
+      height: 1px;
+      border-radius: 999px;
+      background: radial-gradient(circle at center, rgba(148,163,184,0.5), transparent);
+      margin: 10px 0 8px;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 230px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 14px;
+      border: 1px solid rgba(31,41,55,1);
+      background: radial-gradient(circle at top left, rgba(15,23,42,1), rgba(2,6,23,1));
+      padding: 9px 10px;
+    }
+
+    .product-main {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .product-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .product-meta {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: rgba(15,23,42,0.95);
+    }
+
+    .status-pill.active {
+      border-color: rgba(22,163,74,0.8);
+      color: #4ade80;
+    }
+
+    .status-pill.trial {
+      border-color: rgba(250,204,21,0.8);
+      color: var(--accent-strong);
+    }
+
+    .status-pill.canceled {
+      border-color: rgba(248,113,113,0.8);
+      color: var(--danger);
+    }
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .module-card {
+      border-radius: 16px;
+      border: 1px solid rgba(31,41,55,1);
+      background: radial-gradient(circle at top left, rgba(201,162,39,0.1), rgba(15,23,42,1));
+      padding: 10px 11px 11px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+      cursor: default;
+    }
+
+    .module-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .module-desc {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .module-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .tag-pill {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(202,138,4,0.6);
+      background: rgba(15,23,42,0.9);
+      color: var(--accent-strong);
+      white-space: nowrap;
+    }
+
+    .tag-pill.secondary {
+      border-color: rgba(148,163,184,0.6);
+      color: var(--muted);
+    }
+
+    .module-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .btn-soft {
+      border-radius: 999px;
+      border: 1px solid rgba(202, 138, 4, 0.6);
+      background: rgba(15,23,42,0.96);
+      color: var(--accent-strong);
+      font-size: 11px;
+      padding: 5px 10px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .btn-soft:hover {
+      background: rgba(202,138,4,0.15);
+    }
+
+    .small-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .status-banner {
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.95);
+      border: 1px dashed rgba(148,163,184,0.6);
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .status-banner strong {
+      color: var(--accent-strong);
+    }
+
+    .loading {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .error-text {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 4px;
+    }
+
+    .pill-plan {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: rgba(15,23,42,0.95);
+    }
+
+    .pill-plan span {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .pill-plan b {
+      margin-left: 4px;
+      color: var(--accent-strong);
+    }
+
+    .footer-note {
+      padding: 4px 18px 12px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .badge-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 10px;
+}
+
+.badge-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: radial-gradient(circle at top left, rgba(56,189,248,0.9), rgba(16,185,129,0.9));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #020617;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.badge-user-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge-email {
+  font-size: 11px;
+  color: var(--text);
+}
+
+.badge-name {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.topbar-right {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Reusa .badge-user como botón */
+.badge-user {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-user-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: radial-gradient(circle at top left, #22c55e, #0ea5e9);
+  color: #020617;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+}
+
+.dash-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 180px;
+}
+
+.dash-user-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.dash-user-email {
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-user-chevron {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* Panel dropdown */
+.dash-user-menu {
+  position: absolute;
+  top: 44px;
+  right: 20px;
+  width: 230px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(51, 65, 85, 0.9);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.8);
+  padding: 4px 0;
+  z-index: 50;
+}
+
+.dash-user-menu-header {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+  font-size: 11px;
+}
+
+.dash-menu-name {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.dash-menu-email {
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  font-size: 13px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.dash-menu-item:hover {
+  background: rgba(30, 64, 175, 0.5);
+}
+
+.dash-menu-item-danger {
+  color: #f97373;
+}
+
+.dash-menu-item-danger:hover {
+  background: rgba(127, 29, 29, 0.7);
+}
+
+.dash-menu-divider {
+  margin: 4px 0;
+  border-top: 1px solid rgba(51, 65, 85, 0.9);
+}
+
+.hidden {
+  display: none;
+}
+
+.dash-user-menu-wrapper {
+  position: relative;
+}
+
+.dash-user-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: radial-gradient(circle at top left, #22d3ee, #22c55e);
+  color: #020617;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.dash-user-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dash-user-name {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dash-user-email {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.dash-chevron {
+  font-size: 10px;
+  margin-left: 4px;
+  color: var(--muted);
+}
+
+.dash-user-menu-panel {
+  position: absolute;
+  right: 0;
+  margin-top: 8px;
+  min-width: 220px;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 12px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  padding: 4px 0;
+  z-index: 50;
+}
+
+.dash-user-menu-panel.hidden {
+  display: none;
+}
+
+.dash-menu-header {
+  padding: 6px 10px 8px;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.9);
+  font-size: 11px;
+}
+
+.dash-menu-name {
+  font-weight: 600;
+  color: #e5e7eb;
+}
+
+.dash-menu-email {
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-menu-item {
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #e5e7eb;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dash-menu-item:hover {
+  background: rgba(30, 64, 175, 0.45);
+}
+
+.dash-menu-divider {
+  height: 1px;
+  margin: 4px 0;
+  background: rgba(51, 65, 85, 0.9);
+}
+
+.dash-menu-danger {
+  color: #f97373;
+}
+
+.dash-menu-danger:hover {
+  background: rgba(127, 29, 29, 0.45);
+}
+
+
+  </style>
+</head>
+
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <div class="topbar-left">
+    <img src="logo.png" alt="Smart Ink" class="topbar-logo" />
+    <div>
+      <div class="topbar-title">Smart Ink · Panel del Cliente</div>
+      <div style="font-size:11px;color:var(--muted);">
+        Productos, suscripciones y estado de tu cuenta
+      </div>
+    </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dash-user-menu-wrapper">
+      <!-- Button with avatar + name -->
+      <button
+        type="button"
+        class="btn-ghost dash-user-menu-btn"
+        id="dash-user-menu-btn"
+      >
+        <div
+          id="dash-user-avatar"
+          class="dash-user-avatar"
+        >
+          SI
+        </div>
+        <div class="dash-user-text">
+          <div id="dash-user-name" class="dash-user-name">
+            Cargando usuario...
+          </div>
+          <div id="dash-user-email" class="dash-user-email">
+            —
+          </div>
+        </div>
+        <span class="dash-chevron">▼</span>
+      </button>
+
+      <!-- Dropdown panel -->
+      <div
+        id="dash-user-menu-panel"
+        class="dash-user-menu-panel hidden"
+      >
+        <div class="dash-menu-header">
+          <div id="dash-menu-name" class="dash-menu-name">Smart Ink</div>
+          <div id="dash-menu-email" class="dash-menu-email">demo@smartink.mx</div>
+        </div>
+
+        <button type="button" id="dash-menu-home" class="dash-menu-item">
+          Inicio
+        </button>
+        <button type="button" id="dash-menu-account" class="dash-menu-item">
+          Mi cuenta
+        </button>
+
+        <div class="dash-menu-divider"></div>
+
+        <button
+          type="button"
+          id="dash-menu-logout"
+          class="dash-menu-item dash-menu-danger"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+
+  <main class="main">
+    <!-- Columna izquierda: cuenta / organización -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Cuenta Smart Ink</div>
+        <div class="chip" id="chip-org">ORG</div>
+      </div>
+      <div class="card-main-title" id="org-name">
+        Cargando organización...
+      </div>
+      <div class="card-subtitle" id="org-subtitle">
+        Esperando datos de Supabase.
+      </div>
+
+      <div class="grid-two" style="margin-bottom:8px;">
+        <div class="metric">
+          <div class="metric-label">Estado general</div>
+          <div class="metric-value" id="org-status">—</div>
+          <div class="metric-pill" id="org-status-extra">Requiere sesión activa.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Inicio</div>
+          <div class="metric-value" id="org-created">—</div>
+          <div class="metric-pill" id="org-trial">Trial: —</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="small-label">Suscripciones activas</div>
+      <div class="list" id="subs-list">
+        <div class="loading">Cargando suscripciones desde Supabase...</div>
+      </div>
+
+      <div class="status-banner" id="banner-account">
+        Para <strong>activar o cambiar módulos</strong> es obligatorio tener una cuenta registrada
+        y sesión iniciada. Este panel solo funciona para usuarios autenticados.
+      </div>
+    </section>
+
+    <!-- Columna derecha: módulos -->
+    <section class="card">
+      <div class="card-header">
+        <div class="card-title">Módulos Smart Ink</div>
+        <div class="chip">Recomendaciones & catálogo</div>
+      </div>
+      <div class="card-main-title">Productos que ofrece Smart Ink</div>
+      <div class="card-subtitle">
+        Aquí ves todo lo que puedes tener con Smart Ink: qué módulos ya tienes activos
+        y cuáles te recomendamos agregar. Los insights aparecen al pasar el cursor
+        sobre cada módulo.
+      </div>
+
+      <div class="modules-grid" id="modules-grid">
+        <!-- Se rellenará con base a productos/suscripciones -->
+      </div>
+
+      <div class="status-banner" style="margin-top:10px;">
+        Notas:
+        <ul style="margin:6px 0 0 16px;padding:0;font-size:11px;color:var(--muted);">
+          <li>Los módulos solo se pueden <strong>activar o abrir</strong> desde una cuenta con sesión válida.</li>
+          <li>Si no tienes un módulo activo, el botón te llevará al <strong>flujo de compra</strong> o página informativa.</li>
+          <li>Las etiquetas como <strong>Recomendación Smart Ink</strong>, <strong>Más usado</strong> o <strong>Nuevo</strong> ayudan a priorizar qué probar primero.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer-note">
+    Smart Ink · Dashboard conectado a Supabase · Catálogo vivo de módulos Smart Ink.
+  </div>
+</div>
+
+
+<!-- ============================
+     LÓGICA SUPABASE / DASHBOARD
+     ============================ -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+  // 🔐 MISMA CONFIGURACIÓN QUE EN LA PÁGINA PRINCIPAL
+  const SUPABASE_URL = "https://xjkpyjdvxduzbkriindm.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhqa3B5amR2eGR1emJrcmlpbmRtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDU3NDEsImV4cCI6MjA3OTU4MTc0MX0.NQGI245biPWESIrxqLH3_gTmzhF78DcBjIF4ENd4Zbc";
+
+
+  // 🚪 Ruta del sitio principal (donde está el modal de login)
+  // Ejemplo GitHub Pages: "/Website/index.html"
+const MAIN_SITE_URL = "/Website/";
+const LANDING_URL  = "/Website/";
+const ACCOUNT_URL  = "/Website/account.html";
+const DASHBOARD_URL = "/Website/dashboard.html"; // opcional pero consistente
+
+
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Org / dashboard cards
+const chipOrgEl         = document.getElementById("chip-org");
+const orgNameEl         = document.getElementById("org-name");
+const orgSubtitleEl     = document.getElementById("org-subtitle");
+const orgStatusEl       = document.getElementById("org-status");
+const orgStatusExtraEl  = document.getElementById("org-status-extra");
+const orgCreatedEl      = document.getElementById("org-created");
+const orgTrialEl        = document.getElementById("org-trial");
+const subsListEl        = document.getElementById("subs-list");
+const modulesGridEl     = document.getElementById("modules-grid");
+
+// Header mini user + dropdown
+const dashUserNameEl    = document.getElementById("dash-user-name");
+const dashUserEmailEl   = document.getElementById("dash-user-email");
+const dashUserAvatarEl  = document.getElementById("dash-user-avatar");
+const dashMenuNameEl    = document.getElementById("dash-menu-name");
+const dashMenuEmailEl   = document.getElementById("dash-menu-email");
+
+const dashUserMenuBtn   = document.getElementById("dash-user-menu-btn");
+const dashUserMenuPanel = document.getElementById("dash-user-menu-panel");
+const dashMenuHome      = document.getElementById("dash-menu-home");
+const dashMenuAccount   = document.getElementById("dash-menu-account");
+const dashMenuLogout    = document.getElementById("dash-menu-logout");
+
+
+
+
+
+
+  // Utilidad: formatear fechas
+  function formatDate(value) {
+    if (!value) return "—";
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("es-MX", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit"
+    });
+  }
+
+  function setError(message) {
+    subsListEl.innerHTML = "";
+    const div = document.createElement("div");
+    div.className = "error-text";
+    div.textContent = message;
+    subsListEl.appendChild(div);
+  }
+
+  // 🔒 Verificar sesión; si no hay, mandar de vuelta al sitio principal
+  async function ensureSession() {
+    const { data, error } = await supabase.auth.getSession();
+    if (error || !data.session) {
+      window.location.href = MAIN_SITE_URL + "?auth=required";
+      return null;
+    }
+    return data.session;
+  }
+
+async function loadDashboard() {
+  const session = await ensureSession();
+  if (!session) return;
+
+  const user = session.user;
+
+  // Valores base por si no hay perfil
+  let displayName = user.email || "Usuario Smart Ink";
+  let emailLabel  = user.email || "";
+  let initials    = (user.email || "?").charAt(0).toUpperCase();
+
+  // 1) Perfil
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("full_name, company, avatar_url, default_org_id")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError) {
+    console.error(profileError);
+    orgNameEl.textContent = "Perfil no encontrado";
+    orgSubtitleEl.textContent =
+      "Revisa que la función complete_sign_up se haya ejecutado correctamente.";
+    orgStatusEl.textContent = "Error";
+    orgStatusExtraEl.textContent = "No se pudo cargar el perfil.";
+
+    // Fallback mini header + menú
+    if (dashUserAvatarEl) {
+      dashUserAvatarEl.style.backgroundImage = "none";
+      dashUserAvatarEl.textContent = initials;
+    }
+    if (dashUserNameEl)  dashUserNameEl.textContent  = displayName;
+    if (dashUserEmailEl) dashUserEmailEl.textContent = emailLabel;
+    if (dashMenuNameEl)  dashMenuNameEl.textContent  = displayName;
+    if (dashMenuEmailEl) dashMenuEmailEl.textContent = emailLabel;
+    return;
+  }
+
+  // Si hay perfil, refinamos displayName / iniciales / avatar
+  const avatarUrl = profile.avatar_url || null;
+
+  displayName =
+    profile.company ||
+    profile.full_name ||
+    user.email ||
+    "Usuario Smart Ink";
+
+  emailLabel = user.email || emailLabel;
+
+  initials = (profile.company || profile.full_name || user.email || "?")
+    .split(" ")
+    .filter(Boolean)
+    .map(p => p[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+// Rellenar header dropdown
+if (dashUserNameEl) dashUserNameEl.textContent = displayName;
+if (dashUserEmailEl) dashUserEmailEl.textContent = emailLabel || "";
+if (dashMenuNameEl) dashMenuNameEl.textContent = displayName;
+if (dashMenuEmailEl) dashMenuEmailEl.textContent = emailLabel || "";
+
+if (dashUserAvatarEl) {
+  if (avatarUrl) {
+    dashUserAvatarEl.style.backgroundImage = `url(${avatarUrl})`;
+    dashUserAvatarEl.textContent = "";
+  } else {
+    dashUserAvatarEl.style.backgroundImage = "none";
+    dashUserAvatarEl.textContent = initials;
+  }
+}
+
+
+
+
+
+    // 2) Organización principal
+    if (!profile.default_org_id) {
+      orgNameEl.textContent = profile.full_name || "Cuenta sin organización";
+      orgSubtitleEl.textContent =
+        "No se encontró una organización asociada a tu perfil.";
+      orgStatusEl.textContent = "Configuración incompleta";
+      orgStatusExtraEl.textContent =
+        "Contacta a soporte para vincular tu organización.";
+      return;
+    }
+
+    const { data: org, error: orgError } = await supabase
+      .from("organizations")
+      .select("*")
+      .eq("id", profile.default_org_id)
+      .single();
+
+    if (orgError) {
+      console.error(orgError);
+      orgNameEl.textContent = "Error al cargar organización";
+      orgSubtitleEl.textContent =
+        "No tienes permiso o la organización fue eliminada.";
+      orgStatusEl.textContent = "Error";
+      orgStatusExtraEl.textContent =
+        "Verifica en Supabase la tabla organizations.";
+      return;
+    }
+
+    orgNameEl.textContent = org.name;
+    orgSubtitleEl.textContent = org.legal_name
+      ? org.legal_name
+      : "Organización configurada en Smart Ink.";
+    chipOrgEl.textContent = "ORG · " + (org.id || "").slice(0, 8).toUpperCase();
+    orgStatusEl.textContent = "Activa";
+    orgStatusExtraEl.textContent =
+      "Sesión válida y organización vinculada.";
+    orgCreatedEl.textContent = formatDate(org.created_at);
+
+    // 3) Suscripciones de esta organización
+    const { data: subs, error: subsError } = await supabase
+      .from("subscriptions")
+      .select(
+        `
+        id,
+        status,
+        plan,
+        starts_at,
+        expires_at,
+        products (
+          code,
+          name,
+          description
+        )
+      `
+      )
+      .eq("org_id", org.id)
+      .order("created_at", { ascending: true });
+
+    subsListEl.innerHTML = "";
+
+    if (subsError) {
+      console.error(subsError);
+      setError(
+        "No se pudieron cargar las suscripciones. Revisa las políticas RLS."
+      );
+    } else if (!subs || subs.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "loading";
+      empty.textContent =
+        "Tu organización aún no tiene módulos activos. Puedes activar uno desde el panel de la derecha.";
+      subsListEl.appendChild(empty);
+      orgStatusEl.textContent = "Sin módulos activos";
+      orgStatusExtraEl.textContent =
+        "Tu cuenta está lista, solo falta activar un producto.";
+      orgTrialEl.textContent = "Trial: aún no iniciado";
+    } else {
+      let trialText = "Trial: —";
+      subs.forEach((s) => {
+        const item = document.createElement("div");
+        item.className = "product-item";
+
+        const left = document.createElement("div");
+        left.className = "product-main";
+
+        const name = document.createElement("div");
+        name.className = "product-name";
+        name.textContent =
+          s.products?.name || s.products?.code || "Producto";
+
+        const meta = document.createElement("div");
+        meta.className = "product-meta";
+        const codePart = s.products?.code ? `Código: ${s.products.code}` : "";
+        const datesPart = s.expires_at
+          ? ` · Expira: ${formatDate(s.expires_at)}`
+          : "";
+        meta.textContent = `${codePart}${datesPart}`;
+
+        left.appendChild(name);
+        left.appendChild(meta);
+
+        const right = document.createElement("div");
+
+        const pill = document.createElement("div");
+        pill.className =
+          "status-pill " + (s.status ? s.status.toLowerCase() : "");
+        pill.textContent =
+          s.status === "active"
+            ? "Activo"
+            : s.status === "trial"
+            ? "Trial"
+            : s.status === "past_due"
+            ? "Pendiente de pago"
+            : s.status === "canceled"
+            ? "Cancelado"
+            : s.status || "—";
+
+        const planPill = document.createElement("div");
+        planPill.className = "pill-plan";
+        planPill.innerHTML = `<span>plan</span><b>${
+          s.plan || "starter"
+        }</b>`;
+
+        right.appendChild(pill);
+        right.appendChild(planPill);
+
+        item.appendChild(left);
+        item.appendChild(right);
+        subsListEl.appendChild(item);
+
+        if (s.status === "trial") {
+          trialText =
+            "Trial: " +
+            (s.expires_at
+              ? "hasta " + formatDate(s.expires_at)
+              : "activo");
+        }
+      });
+
+      orgTrialEl.textContent = trialText;
+    }
+
+    // 4) Módulos disponibles / catálogo visual
+    await loadModules(subs || []);
+  }
+
+  async function loadModules(activeSubs) {
+    modulesGridEl.innerHTML = "";
+
+    const activeCodes = new Set(
+      activeSubs
+        .map((s) => s.products?.code)
+        .filter((c) => typeof c === "string")
+    );
+
+    // Catálogo vivo de módulos Smart Ink
+    const modules = [
+      {
+        code: "HCM",
+        name: "HCM Ejecutivo",
+        desc: "Asistencia, nómina, expedientes y dashboards ejecutivos para Capital Humano.",
+        tags: ["Más usado", "Recomendación Smart Ink"],
+        tip: "Ideal para directores y RRHH que quieren control total de asistencia y nómina sin vivir en Excel.",
+        appUrl: "/apps/hcm/index.html", // CAMBIA a tu frontend real
+        buyUrl: "https://smart-ink.github.io/Website/comprar-hcm" // CAMBIA a tu landing de compra
+      },
+      {
+        code: "SRM",
+        name: "SRM Proveedores",
+        desc: "Automatiza relación con proveedores, facturas, órdenes de compra y pagos críticos.",
+        tags: ["Nuevo", "Alto impacto"],
+        tip: "Perfecto si ya usas facturación automatizada y quieres controlar mejor a quién le compras y cuánto debes.",
+        appUrl: "/apps/srm/index.html",
+        buyUrl: "https://smart-ink.github.io/Website/comprar-srm"
+      },
+      {
+        code: "FACTURAS",
+        name: "Automatización de Facturas",
+        desc: "Lectura de CFDI, panel de flujo de efectivo y reportes para tomar decisiones diarias.",
+        tags: ["Core financiero", "Recomendado dirección"],
+        tip: "Si solo fueras a automatizar una cosa este año, que sea la lectura de facturas.",
+        appUrl: "/apps/facturas/index.html",
+        buyUrl: "https://smart-ink.github.io/Website/comprar-facturas"
+      }
+    ];
+
+    modules.forEach((m) => {
+      const card = document.createElement("div");
+      card.className = "module-card";
+      if (m.tip) card.title = m.tip;
+
+      const name = document.createElement("div");
+      name.className = "module-name";
+      name.textContent = m.name;
+
+      const desc = document.createElement("div");
+      desc.className = "module-desc";
+      desc.textContent = m.desc;
+
+      const tagsRow = document.createElement("div");
+      tagsRow.className = "module-tags";
+      (m.tags || []).forEach((t, idx) => {
+        const tag = document.createElement("div");
+        tag.className = "tag-pill" + (idx > 0 ? " secondary" : "");
+        tag.textContent = t;
+        tagsRow.appendChild(tag);
+      });
+
+      const footer = document.createElement("div");
+      footer.className = "module-footer";
+
+      const label = document.createElement("div");
+      label.className = "small-label";
+      label.textContent = "Módulo · " + m.code;
+
+      const btn = document.createElement("button");
+      btn.className = "btn-soft";
+
+      const alreadyActive = activeCodes.has(m.code);
+
+      if (alreadyActive) {
+        btn.textContent = "Abrir módulo";
+        if (m.tip) btn.title = m.tip;
+        btn.addEventListener("click", () => {
+          if (m.appUrl) {
+            window.location.href = m.appUrl;
+          } else {
+            alert(
+              "Aquí puedes conectar la ruta real del frontend de " +
+                m.code +
+                " (HCM, SRM, etc.)."
+            );
+          }
+        });
+      } else {
+        btn.textContent = "Ver opciones de compra";
+        if (m.tip) btn.title = m.tip;
+        btn.addEventListener("click", () => {
+          if (m.buyUrl) {
+            window.open(m.buyUrl, "_blank");
+          } else {
+            alert(
+              "Aquí conectarás la página de compra o formulario de contacto para el módulo " +
+                m.code +
+                "."
+            );
+          }
+        });
+      }
+
+      footer.appendChild(label);
+      footer.appendChild(btn);
+
+      card.appendChild(name);
+      card.appendChild(desc);
+      if (m.tags && m.tags.length) {
+        card.appendChild(tagsRow);
+      }
+      card.appendChild(footer);
+
+      modulesGridEl.appendChild(card);
+    });
+  }
+
+// ---------------------
+// Dropdown usuario (dashboard)
+// ---------------------
+// Toggle dropdown
+if (dashUserMenuBtn && dashUserMenuPanel) {
+  dashUserMenuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    dashUserMenuPanel.classList.toggle("hidden");
+  });
+
+  document.addEventListener("click", (e) => {
+    if (
+      !dashUserMenuPanel.classList.contains("hidden") &&
+      !dashUserMenuPanel.contains(e.target) &&
+      !dashUserMenuBtn.contains(e.target)
+    ) {
+      dashUserMenuPanel.classList.add("hidden");
+    }
+  });
+}
+
+// Actions
+if (dashMenuHome) {
+  dashMenuHome.addEventListener("click", () => {
+    window.location.href = LANDING_URL;
+  });
+}
+
+
+if (dashMenuAccount) {
+  dashMenuAccount.addEventListener("click", () => {
+    window.location.href = ACCOUNT_URL;
+  });
+}
+
+
+if (dashMenuLogout) {
+  dashMenuLogout.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = LANDING_URL;
+  });
+}
+
+// Start dashboard
+loadDashboard();
+
+
+
+
+
+
+</script>
